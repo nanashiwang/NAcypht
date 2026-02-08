@@ -13,10 +13,10 @@ USER_SETTINGS_DIR="${USER_SETTINGS_DIR:-/var/lib/hm3/users}"
 ATTACHMENT_DIR="${ATTACHMENT_DIR:-/var/lib/hm3/attachments}"
 
 # Wait for database to be ready then setup tables
-./scripts/setup_database.php
+php ./scripts/setup_database.php
 
 # Setup filesystem and users
-./scripts/setup_system.sh
+sh ./scripts/setup_system.sh
 
 # Enable the program in the web-server
 

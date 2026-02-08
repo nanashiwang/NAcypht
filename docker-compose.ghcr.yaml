@@ -1,0 +1,54 @@
+services:
+  db:
+    image: mariadb:10.11
+    container_name: nacypht-db
+    restart: unless-stopped
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    environment:
+      TZ: Asia/Shanghai
+      MYSQL_ROOT_PASSWORD: Root_ChangeMe_123!
+      MYSQL_DATABASE: cypht
+      MYSQL_USER: cypht
+      MYSQL_PASSWORD: DbUser_ChangeMe_123!
+    volumes:
+      - /volume3/docker/nacypht/data/mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u cypht -pDbUser_ChangeMe_123! || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  cypht:
+    image: ghcr.io/nanashiwang/nacypht:main
+    container_name: nacypht-app
+    restart: unless-stopped
+    depends_on:
+      - db
+    ports:
+      - "8088:80"
+    environment:
+      TZ: Asia/Shanghai
+      AUTH_TYPE: DB
+      AUTH_USERNAME: admin
+      AUTH_PASSWORD: Admin_ChangeMe_123!
+      DB_CONNECTION_TYPE: host
+      DB_DRIVER: mysql
+      DB_HOST: db
+      DB_PORT: "3306"
+      DB_NAME: cypht
+      DB_USER: cypht
+      DB_PASS: DbUser_ChangeMe_123!
+      SESSION_TYPE: DB
+      USER_CONFIG_TYPE: DB
+      USER_SETTINGS_DIR: /var/lib/hm3/users
+      ATTACHMENT_DIR: /var/lib/hm3/attachments
+      DEFAULT_LANGUAGE: zh-CN
+      DEBUG_LOG: "true"
+    volumes:
+      - /volume3/docker/nacypht/data/users:/var/lib/hm3/users
+      - /volume3/docker/nacypht/data/attachments:/var/lib/hm3/attachments
+      - /volume3/docker/nacypht/data/app_data:/var/lib/hm3/app_data
+      - /volume3/docker/nacypht/data/sqlite:/var/lib/hm3/sqlite
+      - /volume3/docker/nacypht/data/log/nginx:/var/log/nginx
+      - /volume3/docker/nacypht/data/log/php:/var/log/php
+      - /volume3/docker/nacypht/data/log/supervisord:/var/log/supervisord
